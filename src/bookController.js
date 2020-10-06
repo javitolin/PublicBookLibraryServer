@@ -5,13 +5,12 @@ exports.index = function (req, res) {
     Book.get(function (err, books) {
         if (err) {
             res.json({
-                status: "error",
+                success: false,
                 message: err,
             });
         }
-
         res.json({
-            status: "success",
+            success: true,
             message: "Books retrieved successfully",
             data: books
         });
@@ -25,7 +24,12 @@ exports.new = function (req, res) {
     book.author = req.body.author
     book.owner = req.body.owner
     book.save(function (err) {
+        if (err) {
+            res.json({ success: false, message: err })
+            return;
+        }
         res.json({
+            success: true,
             message: 'New book created!',
             data: book
         });
@@ -33,13 +37,16 @@ exports.new = function (req, res) {
 };
 
 exports.take_book = function (req, res) {
-    Book.find({ "id": req.params.id }, function (err, books) {
-        if (err)
-            res.send(err);
+    console.log("take")
+    Book.find({ "_id": req.params.id }, function (err, books) {
+        if (err || books.length == 0) {
+            res.json({ success: false, message: err })
+            return;
+        }
 
         var book = books[0]
         if (book.is_available != true) {
-            res.json({ result: false, message: 'Book is unavailable' })
+            res.json({ success: false, message: 'Book is unavailable' })
             return;
         }
 
@@ -51,7 +58,7 @@ exports.take_book = function (req, res) {
             if (err)
                 res.json(err);
             res.json({
-                result: true,
+                success: true,
                 message: 'Book taken',
                 data: book
             });
@@ -61,33 +68,34 @@ exports.take_book = function (req, res) {
 };
 
 exports.return_book = function (req, res) {
-    Book.find({ "id": req.params.id }, function (err, books) {
-        if (err)
-            res.send(err);
+    Book.find({ "_id": req.params.id }, function (err, books) {
+        if (err || books.length == 0) {
+            res.json({ success: false, message: err })
+            return;
+        }
 
         var book = books[0]
         if (book.is_available == true) {
-            res.json({ result: false, message: 'Book is available. No need to return' })
+            res.json({ success: false, message: 'Book is available. No need to return' })
             return;
         }
 
         var lastReader = book.readers[book.readers.length - 1];
         var readerName = req.body.reader
         if (book.readers.length != 0 && lastReader.toLowerCase() != readerName.toLowerCase()) {
-            res.json({ result: false, message: 'Wrong reader!' })
+            res.json({ success: false, message: 'Wrong reader!' })
             return;
         }
 
         book.is_available = true
         book.save(function (err) {
             if (err)
-                res.json(err);
+                res.json({ success: false, message: err })
             res.json({
-                result: true,
+                success: true,
                 message: 'Book returned',
                 data: book
             });
-
         })
     });
 };

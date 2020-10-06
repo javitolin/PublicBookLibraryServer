@@ -1,7 +1,4 @@
-// Filename: api-routes.js
-// Initialize express router
 let router = require('express').Router();
-// Set default API response
 router.get('/', function (req, res) {
     res.json({
         status: 'API Its Working',
@@ -11,12 +8,12 @@ router.get('/', function (req, res) {
 
 var bookController = require('./bookController');
 // Contact routes
-router.route('/book')
+router.route('/books')
     .get(bookController.index)
     .post(bookController.new);
-router.route('/book/:id/take')
+router.route('/books/:id/take')
     .post(bookController.take_book);
-router.route('/book/:id/return')
+router.route('/books/:id/return')
     .post(bookController.return_book);
 
 // Export API routes

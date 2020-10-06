@@ -3,9 +3,6 @@ var mongoose = require('mongoose');
 // var Reader = require('./readerModel');
 // Setup schema
 var bookSchema = mongoose.Schema({
-    id: {
-        type: Number
-    },
     title: {
         type: String,
         required: true
